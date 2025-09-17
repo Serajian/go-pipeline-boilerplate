@@ -16,7 +16,11 @@ type GinAdapter struct {
 	barrier     ports.PipeLineBarrier[model.UserData]
 }
 
-func NewGinAdapter(p ports.Pipeline[model.UserData], b ports.PipeLineBarrier[model.UserData], sr ports.PipeLineFn[model.UserData]) *GinAdapter {
+func NewGinAdapter(
+	p ports.Pipeline[model.UserData],
+	b ports.PipeLineBarrier[model.UserData],
+	sr ports.PipeLineFn[model.UserData],
+) *GinAdapter {
 	adapter := &GinAdapter{
 		Engin:       ginEngin(),
 		pipeline:    p,
@@ -99,7 +103,6 @@ func (g *GinAdapter) testParallel(r *gin.RouterGroup) {
 		}
 		c.JSON(200, gin.H{"data": result, "count": len(result)})
 	})
-
 }
 
 func (g *GinAdapter) testBarrier(r *gin.RouterGroup) {
@@ -149,7 +152,7 @@ func (g *GinAdapter) testShort(r *gin.RouterGroup) {
 		user := model.UserData{
 			Name: "mohsenV3",
 			Age:  30,
-			//Email: "hooora!",
+			// Email: "hooora!",
 			Email: "V3@gmailcom",
 		}
 
@@ -159,7 +162,5 @@ func (g *GinAdapter) testShort(r *gin.RouterGroup) {
 			return
 		}
 		c.JSON(200, gin.H{"data": out})
-
 	})
-
 }
