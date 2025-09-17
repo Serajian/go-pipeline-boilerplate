@@ -3,16 +3,16 @@ package bootstrap
 import (
 	"context"
 	"fmt"
+	"go-pipeline/internal/di"
+	"go-pipeline/internal/presentation/http"
+	"go-pipeline/internal/presentation/mq"
 	"os"
 	"runtime/debug"
 	"sync"
 
 	"go-pipeline/config"
 	"go-pipeline/infrastructure/registry"
-	"go-pipeline/internal/di"
 	"go-pipeline/pkg/logger"
-	"go-pipeline/presentation/http"
-	"go-pipeline/presentation/mq"
 )
 
 // App encapsulates the application's core services.
@@ -20,7 +20,8 @@ type App struct {
 	sync.WaitGroup
 	httpServer *registry.HTTPServerRegistry
 	mq         *registry.MQRegistry
-	container  *di.Container
+	pipelines  *di.Pipelines
+	stages     *di.Stages
 }
 
 // Initialize sets up the application's core services.
@@ -31,8 +32,6 @@ func Initialize(ctx context.Context) (*App, error) {
 
 	app := &App{}
 
-	container := di.NewContainer()
-	app.container = container
 	// 1) initialize databases
 
 	// 2) initialize message queue
@@ -46,12 +45,14 @@ func Initialize(ctx context.Context) (*App, error) {
 		TraceID: traceID,
 	})
 	app.mq = mqRegistry
-	// 3) initialize adapters
+	// 3) initialize stages
+	app.stages = di.NewStagesContainer(app.mq.GetKafkaProducer())
 
-	// 4) initialize use cases
+	// 4) initialize pipelines
+	app.pipelines = di.NewPipelines(app.stages)
 
 	// 5) initialize httpserver server
-	handlerHTTP := http.NewGinAdapter()
+	handlerHTTP := http.NewGinAdapter(app.pipelines.Registry)
 	httpRegistry := registry.NewHTTPServerRegistry(handlerHTTP.Engin)
 	app.httpServer = httpRegistry
 	log.Info(&logger.Log{
@@ -71,13 +72,6 @@ func Initialize(ctx context.Context) (*App, error) {
 	return app, err
 }
 
-func (app *App) initializePipelines() {
-}
-
-//func (app *App) initializeStages() {
-//
-//}
-
 // Start begins the application's core services.
 func (app *App) Start(ctx context.Context) {
 	traceID := config.GetTraceID(ctx)
@@ -86,7 +80,7 @@ func (app *App) Start(ctx context.Context) {
 		TraceID: traceID,
 	})
 
-	app.Add(4)
+	app.Add(2)
 	go app.safeRun("httpserver server", traceID, func() {
 		if err := app.httpServer.Start(ctx); err != nil {
 			logger.GetLogger().Error(&logger.Log{
@@ -97,6 +91,17 @@ func (app *App) Start(ctx context.Context) {
 			})
 		}
 	})
+	go app.safeRun("kafka consumer", traceID, func() {
+		if err := app.mq.GetKafkaConsumer().Consume(ctx); err != nil {
+			logger.GetLogger().Error(&logger.Log{
+				Event:      "start kafka consumer",
+				Error:      err,
+				TraceID:    traceID,
+				Additional: map[string]interface{}{"msg": "failed to start kafka consumer"},
+			})
+		}
+	})
+
 }
 
 // Stop gracefully shuts down the application's core services.
