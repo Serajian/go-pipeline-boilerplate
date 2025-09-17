@@ -1,0 +1,30 @@
+version: "2"
+run:
+  timeout: 2m
+
+linters:
+  enable:
+    - govet          # Reports suspicious constructs (shadowed variables, unreachable code, incorrect fmt usage, etc.)
+    - staticcheck    # Advanced static analysis (includes stylecheck for comments, detects unused code, deprecated APIs, bugs)
+    - unused         # Finds unused functions, variables, constants, and struct fields
+    - errcheck       # Ensures all returned errors are properly checked
+    - gocyclo        # Flags functions with high cyclomatic complexity (too many branches)
+    - forbidigo      # Forbids specific identifiers/functions (e.g., fmt.Print → enforce custom logger)
+    - ineffassign    # Detects ineffectual assignments (values assigned but never used)
+    - prealloc       # Suggests preallocation for slices when length is known
+    - dupl           # Detects duplicate code blocks
+    - misspell       # Detects commonly misspelled words in comments/strings
+    - goconst        # Identifies repeated strings/numbers and suggests constants
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15   # Threshold for cyclomatic complexity before reporting
+  misspell:
+    locale: US           # Dictionary locale (can be US or UK)
+  goconst:
+    min-len: 3           # Minimum string length to consider for constants
+    min-occurrences: 2   # How many repetitions before suggesting a constant
+  prealloc:
+    simple: true         # Enable on simple loops
+    range-loops: true    # Enable on for-range loops
+    for-loops: true      # Enable on traditional for-loops
