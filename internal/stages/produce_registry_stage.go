@@ -2,6 +2,7 @@ package stages
 
 import (
 	"context"
+
 	"go-pipeline/internal/model"
 	"go-pipeline/internal/ports"
 )
@@ -16,7 +17,10 @@ func NewProduceRegistryStage(producer ports.MessageQueueProducer) *ProduceRegist
 
 func (p *ProduceRegistryStage) Name() string { return "produce-registry" }
 
-func (p *ProduceRegistryStage) Run(ctx context.Context, in <-chan model.UserData) (<-chan model.UserData, <-chan error) {
+func (p *ProduceRegistryStage) Run(
+	ctx context.Context,
+	in <-chan model.UserData,
+) (<-chan model.UserData, <-chan error) {
 	out := make(chan model.UserData, 64)
 	err := make(chan error, 64)
 

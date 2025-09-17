@@ -2,8 +2,9 @@ package pipelines
 
 import (
 	"context"
-	"go-pipeline/internal/ports"
 	"sync"
+
+	"go-pipeline/internal/ports"
 )
 
 type Runner[T any] struct {

@@ -2,6 +2,7 @@ package stages
 
 import (
 	"context"
+
 	"go-pipeline/internal/ports"
 
 	"go-pipeline/internal/model"
@@ -17,7 +18,10 @@ func (s *StoreRegistryStage) Name() string {
 	return "store_registry"
 }
 
-func (s *StoreRegistryStage) Run(ctx context.Context, in <-chan model.UserData) (<-chan model.UserData, <-chan error) {
+func (s *StoreRegistryStage) Run(
+	ctx context.Context,
+	in <-chan model.UserData,
+) (<-chan model.UserData, <-chan error) {
 	out := make(chan model.UserData, 64)
 	errc := make(chan error, 64)
 
@@ -32,7 +36,7 @@ func (s *StoreRegistryStage) Run(ctx context.Context, in <-chan model.UserData) 
 				if !ok {
 					return
 				}
-				//TODO: store to DB/Cache
+				// TODO: store to DB/Cache
 				out <- m
 			}
 		}

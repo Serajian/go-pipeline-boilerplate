@@ -18,8 +18,11 @@ func (v *ValidationRegistryStage) Name() string {
 	return "validation_registry"
 }
 
-func (v *ValidationRegistryStage) Run(ctx context.Context, in <-chan model.UserData) (<-chan model.UserData, <-chan error) {
-	//TODO: from config
+func (v *ValidationRegistryStage) Run(
+	ctx context.Context,
+	in <-chan model.UserData,
+) (<-chan model.UserData, <-chan error) {
+	// TODO: from config
 	out := make(chan model.UserData, 64)
 	err := make(chan error, 64)
 

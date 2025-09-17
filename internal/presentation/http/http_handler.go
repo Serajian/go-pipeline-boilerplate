@@ -46,7 +46,7 @@ func (g *GinAdapter) handleRoutes() {
 			Name:  "mohsen",
 			Age:   30,
 			Email: "hooora!",
-			//Email: "hooora@gmailcom",
+			// Email: "hooora@gmailcom",
 		}
 		in := make(chan model.UserData, 1)
 		in <- user
@@ -73,14 +73,13 @@ func (g *GinAdapter) handleRoutes() {
 					errChan = nil
 					continue
 				}
-				//TODO: you can collect for log
+				// TODO: you can collect for log
 				c.JSON(500, gin.H{"error": e.Error()})
 				_ = e
 				return
 			}
 		}
 		c.JSON(200, gin.H{"data": result, "count": len(result)})
-
 	})
 }
 
