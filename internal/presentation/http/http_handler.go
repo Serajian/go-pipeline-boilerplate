@@ -13,15 +13,15 @@ import (
 
 type GinAdapter struct {
 	Engin       *gin.Engine
-	pipeline    ports.Pipeline[model.UserData]
-	shortRunner ports.PipeLineFn[model.UserData]
-	barrier     ports.PipeLineBarrier[model.UserData]
+	pipeline    ports.ChainPipeline[model.UserData]
+	shortRunner ports.ShortCircuitPipeLine[model.UserData]
+	barrier     ports.BarrierPipeLine[model.UserData]
 }
 
 func NewGinAdapter(
-	p ports.Pipeline[model.UserData],
-	b ports.PipeLineBarrier[model.UserData],
-	sr ports.PipeLineFn[model.UserData],
+	p ports.ChainPipeline[model.UserData],
+	b ports.BarrierPipeLine[model.UserData],
+	sr ports.ShortCircuitPipeLine[model.UserData],
 ) *GinAdapter {
 	adapter := &GinAdapter{
 		Engin:       ginEngin(),

@@ -24,7 +24,7 @@ func (r *Runner[T]) Chain(ctx context.Context, in <-chan T) (out <-chan T, errMe
 	return cur, mergeErrors(errs...)
 }
 
-var _ ports.Pipeline[any] = (*Runner[any])(nil)
+var _ ports.ChainPipeline[any] = (*Runner[any])(nil)
 
 func mergeErrors(chs ...<-chan error) <-chan error {
 	out := make(chan error, 64)

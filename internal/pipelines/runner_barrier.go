@@ -61,4 +61,4 @@ func (r *RunnerBarrier[T]) Run(ctx context.Context, in <-chan T) (<-chan T, <-ch
 	return curIn, mergeErrors(allErrs...)
 }
 
-var _ ports.PipeLineBarrier[any] = (*RunnerBarrier[any])(nil)
+var _ ports.BarrierPipeLine[any] = (*RunnerBarrier[any])(nil)
