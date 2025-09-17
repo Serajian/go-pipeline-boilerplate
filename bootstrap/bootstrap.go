@@ -124,6 +124,17 @@ func (app *App) Stop(ctx context.Context) {
 			})
 		}
 	}
+
+	if app.mq != nil {
+		if err := app.mq.Close(); err != nil {
+			logger.GetLogger().Error(&logger.Log{
+				Event:      "stop app",
+				Error:      err,
+				TraceID:    traceID,
+				Additional: map[string]interface{}{"msg": "failed to stop MQ"},
+			})
+		}
+	}
 }
 
 // GracefulShutdown handles the graceful shutdown of the application.
