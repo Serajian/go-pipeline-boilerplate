@@ -41,7 +41,7 @@ func (p *KafkaProducerAdapter) Connect(ctx context.Context) error {
 	cfg.Producer.RequiredAcks = sarama.WaitForAll // Wait for all replicas to ack
 
 	// 3. Partition strategy
-	cfg.Producer.Partitioner = sarama.NewRoundRobinPartitioner // Distribute evenly across partitions
+	cfg.Producer.Partitioner = sarama.NewHashPartitioner // Distribute evenly across partitions
 
 	// 4. Return behavior
 	cfg.Producer.Return.Successes = true // Report successful sends
@@ -89,8 +89,11 @@ func (p *KafkaProducerAdapter) Produce(
 	topic string,
 	msg interface{},
 ) error {
+	//TODO: convent key ***important /maybe rci
+	key := "TODO"
 	message := &sarama.ProducerMessage{
 		Topic: topic,
+		Key:   sarama.ByteEncoder(key),
 		Value: buildValueEncoder(msg), // Encode message as bytes
 		Headers: []sarama.RecordHeader{
 			{
