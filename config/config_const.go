@@ -14,3 +14,10 @@ const (
 	// TraceIDKey key for traceID
 	TraceIDKey contextKey = iota
 )
+
+// *******Channels Stages*******
+
+const (
+	BuffData int = 64
+	BuffErr  int = 64
+)
