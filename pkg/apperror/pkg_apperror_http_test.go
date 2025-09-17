@@ -1,13 +1,14 @@
 package apperror_test
 
 import (
-	"boilerplate/pkg/apperror"
 	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
 	"testing"
+
+	"go-pipeline/pkg/apperror"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"

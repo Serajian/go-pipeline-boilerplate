@@ -3,18 +3,21 @@ package stages
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"go-pipeline/internal/model"
 )
 
 type StoreRegistryStage struct{}
 
+func NewStoreRegistryStage() *StoreRegistryStage {
+	return &StoreRegistryStage{}
+}
+
 func (s *StoreRegistryStage) Name() string {
 	return "store_registry"
 }
 
-func (s *StoreRegistryStage) Execute(ctx context.Context, in <-chan model.UserData) error {
+func (s *StoreRegistryStage) Execute(ctx context.Context, in chan model.UserData) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -22,7 +25,7 @@ func (s *StoreRegistryStage) Execute(ctx context.Context, in <-chan model.UserDa
 		if !ok {
 			return errors.New("user data channel closed")
 		}
-		fmt.Println(userData)
+		in <- userData
 	default:
 		return nil
 	}

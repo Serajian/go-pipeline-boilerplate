@@ -7,5 +7,5 @@ import (
 )
 
 type RegistryPipeline interface {
-	Run(ctx context.Context, in <-chan model.UserData) error
+	Run(ctx context.Context, in chan model.UserData) error
 }

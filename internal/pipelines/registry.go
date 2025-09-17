@@ -2,7 +2,6 @@ package pipelines
 
 import (
 	"context"
-	"fmt"
 
 	"go-pipeline/internal/model"
 	"go-pipeline/internal/ports"
@@ -16,13 +15,12 @@ func NewRegistry(stages ...ports.RegistryStage) *Registry {
 	return &Registry{stages: stages}
 }
 
-func (r *Registry) Run(ctx context.Context, in <-chan model.UserData) error {
+func (r *Registry) Run(ctx context.Context, in chan model.UserData) error {
 	for _, stage := range r.stages {
 		if err := stage.Execute(ctx, in); err != nil {
 			return err
 		}
-		name := stage.Name()
-		fmt.Println(name)
+		// name := stage.Name()
 	}
 	return nil
 }

@@ -3,7 +3,6 @@ package stages
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"go-pipeline/internal/model"
 	"go-pipeline/internal/ports"
@@ -11,11 +10,15 @@ import (
 
 type ValidationRegistryStage struct{}
 
+func NewValidationRegistryStage() *ValidationRegistryStage {
+	return &ValidationRegistryStage{}
+}
+
 func (v *ValidationRegistryStage) Name() string {
 	return "validation_registry"
 }
 
-func (v *ValidationRegistryStage) Execute(ctx context.Context, in <-chan model.UserData) error {
+func (v *ValidationRegistryStage) Execute(ctx context.Context, in chan model.UserData) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -23,7 +26,7 @@ func (v *ValidationRegistryStage) Execute(ctx context.Context, in <-chan model.U
 		if !ok {
 			return errors.New("user data channel closed")
 		}
-		fmt.Println(userData)
+		in <- userData
 	}
 	return nil
 }

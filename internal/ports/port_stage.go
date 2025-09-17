@@ -8,5 +8,5 @@ import (
 
 type RegistryStage interface {
 	Name() string
-	Execute(ctx context.Context, in <-chan model.UserData) error
+	Execute(ctx context.Context, in chan model.UserData) error
 }
