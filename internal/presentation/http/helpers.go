@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+
 	"go-pipeline/internal/model"
 )
 
@@ -10,7 +11,6 @@ func drainAll(
 	out <-chan model.UserData,
 	errCh <-chan error,
 ) (items []model.UserData, errs []error, canceled bool) {
-
 	for out != nil || errCh != nil {
 		select {
 		case <-ctx.Done():
