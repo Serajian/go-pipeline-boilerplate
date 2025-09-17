@@ -3,6 +3,8 @@ package stages
 import (
 	"context"
 
+	"go-pipeline/config"
+
 	"go-pipeline/internal/ports"
 
 	"go-pipeline/internal/model"
@@ -22,12 +24,12 @@ func (s *StoreRegistryStage) Run(
 	ctx context.Context,
 	in <-chan model.UserData,
 ) (<-chan model.UserData, <-chan error) {
-	out := make(chan model.UserData, 64)
-	errc := make(chan error, 64)
+	out := make(chan model.UserData, config.BuffData)
+	err := make(chan error, config.BuffErr)
 
 	go func() {
 		defer close(out)
-		defer close(errc)
+		defer close(err)
 		for {
 			select {
 			case <-ctx.Done():
@@ -41,7 +43,7 @@ func (s *StoreRegistryStage) Run(
 			}
 		}
 	}()
-	return out, errc
+	return out, err
 }
 
 var _ ports.Stage[model.UserData] = (*StoreRegistryStage)(nil)
