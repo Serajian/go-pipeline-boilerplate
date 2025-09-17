@@ -2,7 +2,7 @@ package stages
 
 import (
 	"context"
-	"errors"
+	"go-pipeline/internal/ports"
 
 	"go-pipeline/internal/model"
 )
@@ -17,17 +17,27 @@ func (s *StoreRegistryStage) Name() string {
 	return "store_registry"
 }
 
-func (s *StoreRegistryStage) Execute(ctx context.Context, in chan model.UserData) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case userData, ok := <-in:
-		if !ok {
-			return errors.New("user data channel closed")
+func (s *StoreRegistryStage) Run(ctx context.Context, in <-chan model.UserData) (<-chan model.UserData, <-chan error) {
+	out := make(chan model.UserData, 64)
+	errc := make(chan error, 64)
+
+	go func() {
+		defer close(out)
+		defer close(errc)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case m, ok := <-in:
+				if !ok {
+					return
+				}
+				//TODO: store to DB/Cache
+				out <- m
+			}
 		}
-		in <- userData
-	default:
-		return nil
-	}
-	return nil
+	}()
+	return out, errc
 }
+
+var _ ports.Stage[model.UserData] = (*StoreRegistryStage)(nil)

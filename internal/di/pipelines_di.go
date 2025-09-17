@@ -1,18 +1,21 @@
 package di
 
-import "go-pipeline/internal/pipelines"
+import (
+	"go-pipeline/internal/model"
+	"go-pipeline/internal/pipelines"
+)
 
 type Pipelines struct {
-	Registry *pipelines.Registry
+	Registry *pipelines.Runner[model.UserData]
 }
 
 func NewPipelines(stages *Stages) *Pipelines {
-	registry := pipelines.NewRegistry(
+	r := pipelines.NewRunner[model.UserData](
 		stages.Registry.Validation,
 		stages.Registry.Store,
 		stages.Registry.Produce,
 	)
 	return &Pipelines{
-		Registry: registry,
+		Registry: r,
 	}
 }

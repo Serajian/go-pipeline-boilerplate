@@ -1,11 +1,7 @@
 package ports
 
-import (
-	"context"
+import "context"
 
-	"go-pipeline/internal/model"
-)
-
-type RegistryPipeline interface {
-	Run(ctx context.Context, in chan model.UserData) error
+type Pipeline[T any] interface {
+	Chain(ctx context.Context, in <-chan T) (out <-chan T, errMerged <-chan error)
 }

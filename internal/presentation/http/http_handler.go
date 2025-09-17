@@ -11,10 +11,10 @@ import (
 
 type GinAdapter struct {
 	Engin    *gin.Engine
-	pipeline ports.RegistryPipeline
+	pipeline ports.Pipeline[model.UserData]
 }
 
-func NewGinAdapter(pipeline ports.RegistryPipeline) *GinAdapter {
+func NewGinAdapter(pipeline ports.Pipeline[model.UserData]) *GinAdapter {
 	adapter := &GinAdapter{
 		Engin:    ginEngin(),
 		pipeline: pipeline,
@@ -46,13 +46,41 @@ func (g *GinAdapter) handleRoutes() {
 			Name:  "mohsen",
 			Age:   30,
 			Email: "hooora!",
+			//Email: "hooora@gmailcom",
 		}
 		in := make(chan model.UserData, 1)
 		in <- user
-		if err := g.pipeline.Run(ctx, in); err != nil {
-			c.JSON(200, gin.H{"msg": err.Error()})
+		close(in)
+
+		out, errChan := g.pipeline.Chain(ctx, in)
+
+		var result []model.UserData
+		done := ctx.Done()
+
+		for out != nil || errChan != nil {
+			select {
+			case <-done:
+				c.JSON(499, gin.H{"error": "client canceled"})
+				return
+			case m, ok := <-out:
+				if !ok {
+					out = nil
+					continue
+				}
+				result = append(result, m)
+			case e, ok := <-errChan:
+				if !ok {
+					errChan = nil
+					continue
+				}
+				//TODO: you can collect for log
+				c.JSON(500, gin.H{"error": e.Error()})
+				_ = e
+				return
+			}
 		}
-		c.JSON(200, gin.H{"msg": "hello world"})
+		c.JSON(200, gin.H{"data": result, "count": len(result)})
+
 	})
 }
 

@@ -2,8 +2,6 @@ package stages
 
 import (
 	"context"
-	"errors"
-
 	"go-pipeline/internal/model"
 	"go-pipeline/internal/ports"
 )
@@ -18,18 +16,30 @@ func NewProduceRegistryStage(producer ports.MessageQueueProducer) *ProduceRegist
 
 func (p *ProduceRegistryStage) Name() string { return "produce-registry" }
 
-func (p *ProduceRegistryStage) Execute(ctx context.Context, in chan model.UserData) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case userData, ok := <-in:
-		if !ok {
-			return errors.New("input channel closed unexpectedly")
+func (p *ProduceRegistryStage) Run(ctx context.Context, in <-chan model.UserData) (<-chan model.UserData, <-chan error) {
+	out := make(chan model.UserData, 64)
+	err := make(chan error, 64)
+
+	go func() {
+		defer close(err)
+		defer close(out)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case m, ok := <-in:
+				if !ok {
+					return
+				}
+				if errP := p.producer.Produce(ctx, "users", m); errP != nil {
+					err <- errP
+					continue
+				}
+				out <- m
+			}
 		}
-		return p.producer.Produce(ctx, "users", userData)
-	default:
-		return nil
-	}
+	}()
+	return out, err
 }
 
-var _ ports.RegistryStage = (*ProduceRegistryStage)(nil)
+var _ ports.Stage[model.UserData] = (*ProduceRegistryStage)(nil)

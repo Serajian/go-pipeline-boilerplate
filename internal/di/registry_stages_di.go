@@ -1,14 +1,15 @@
 package di
 
 import (
+	"go-pipeline/internal/model"
 	"go-pipeline/internal/ports"
 	"go-pipeline/internal/stages"
 )
 
 type RegistryStages struct {
-	Validation *stages.ValidationRegistryStage
-	Store      *stages.StoreRegistryStage
-	Produce    *stages.ProduceRegistryStage
+	Validation ports.Stage[model.UserData]
+	Store      ports.Stage[model.UserData]
+	Produce    ports.Stage[model.UserData]
 }
 
 func NewRegistryStages(p ports.MessageQueueProducer) *RegistryStages {

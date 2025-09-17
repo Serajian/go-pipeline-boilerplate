@@ -2,11 +2,9 @@ package ports
 
 import (
 	"context"
-
-	"go-pipeline/internal/model"
 )
 
-type RegistryStage interface {
+type Stage[T any] interface {
 	Name() string
-	Execute(ctx context.Context, in chan model.UserData) error
+	Run(ctx context.Context, in <-chan T) (out <-chan T, err <-chan error)
 }

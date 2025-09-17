@@ -12,6 +12,7 @@ import (
 	"go-pipeline/config"
 	"go-pipeline/pkg/generate"
 	"go-pipeline/pkg/logger"
+	_ "net/http/pprof"
 )
 
 func main() {
