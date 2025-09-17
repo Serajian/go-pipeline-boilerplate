@@ -1,6 +1,8 @@
 package http
 
 import (
+	"net/http"
+
 	"go-pipeline/config"
 	"go-pipeline/internal/model"
 	"go-pipeline/internal/ports"
@@ -76,73 +78,48 @@ func (g *GinAdapter) testParallel(r *gin.RouterGroup) {
 
 		out, errChan := g.pipeline.Chain(ctx, in)
 
-		var result []model.UserData
-		done := ctx.Done()
-
-		for out != nil || errChan != nil {
-			select {
-			case <-done:
-				c.JSON(499, gin.H{"error": "client canceled"})
-				return
-			case m, ok := <-out:
-				if !ok {
-					out = nil
-					continue
-				}
-				result = append(result, m)
-			case e, ok := <-errChan:
-				if !ok {
-					errChan = nil
-					continue
-				}
-				// TODO: you can collect for log
-				c.JSON(500, gin.H{"error": e.Error()})
-				_ = e
-				return
-			}
+		items, errs, canceled := drainAll(ctx, out, errChan)
+		if canceled {
+			c.JSON(499, gin.H{"error": "client canceled"})
+			return
 		}
-		c.JSON(200, gin.H{"data": result, "count": len(result)})
+
+		if errs != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": errs})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"pipeline": "parallel",
+			"count":    len(items),
+			"items":    items,
+		})
 	})
 }
 
 func (g *GinAdapter) testBarrier(r *gin.RouterGroup) {
 	r.GET("/v2", func(c *gin.Context) {
 		ctx := c.Request.Context()
-		user := model.UserData{
-			Name:  "mohsenV2",
-			Age:   30,
-			Email: "V2@gmailcom",
-		}
 
 		in := make(chan model.UserData, 1)
-		in <- user
+		in <- model.UserData{Name: "mohsenV2", Age: 30, Email: "V2@gmailcom"}
 		close(in)
+
 		out, errChan := g.barrier.Run(ctx, in)
 
-		var result []model.UserData
-
-		for out != nil || errChan != nil {
-			select {
-			case <-ctx.Done():
-				c.JSON(499, gin.H{"error": "client canceled"})
-				return
-			case m, ok := <-out:
-				if !ok {
-					out = nil
-					continue
-				}
-				result = append(result, m)
-			case e, ok := <-errChan:
-				if !ok {
-					errChan = nil
-					continue
-				}
-				c.JSON(500, gin.H{"error": e.Error()})
-				_ = e
-
-			}
+		items, errs, canceled := drainAll(ctx, out, errChan)
+		if canceled {
+			c.JSON(499, gin.H{"error": "client canceled"})
+			return
 		}
-		c.JSON(200, gin.H{"data": result, "count": len(result)})
+		if errs != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": errs})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"pipeline": "barrier",
+			"count":    len(items),
+			"items":    items,
+		})
 	})
 }
 
