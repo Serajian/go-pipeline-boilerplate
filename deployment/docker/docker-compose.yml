@@ -1,0 +1,257 @@
+name: boiler
+version: '3.8'
+
+services:
+  ### --- POSTGRES ---
+  postgres-service:
+    image: postgres:latest
+    container_name: boiler-postgres-service
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: boiler_postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  ### --- ADMINER ---
+  adminer:
+    image: adminer:latest
+    container_name: boiler-adminer-service
+    restart: always
+    depends_on:
+      - postgres-service
+    ports:
+      - '5435:8080'
+    volumes:
+      - ./adminer.css:/var/www/html/adminer.css
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ### --- POSTGRES EXPORTER ---
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    container_name: boiler-postgres-exporter
+    restart: always
+    depends_on:
+      - postgres-service
+    ports:
+      - "9187:9187"
+    environment:
+      DATA_SOURCE_NAME: "postgresql://admin:admin@postgres-service:5432/boiler_postgres?sslmode=disable"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ###-------------------------------###
+  ### --- REDIS ---
+  redis-service:
+    image: redis:latest
+    container_name: boiler-redis-service
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./volumes/redis:/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ### --- REDIS INSIGHT ---
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: boiler-redis_insight
+    restart: always
+    depends_on:
+      - redis-service
+    ports:
+      - "5541:5540"
+    volumes:
+      - ./volumes/redisinsight:/database
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ### --- REDIS EXPORTER ---
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: boiler-redis_exporter
+    restart: always
+    ports:
+      - "9121:9121"
+    environment:
+      REDIS_ADDR: redis-service:6379
+    depends_on:
+      - redis-service
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ###-------------------------------###
+  ### --- ZOOKEEPER ---
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: boiler-zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  ### --- KAFKA ---
+  kafka-service:
+    image: confluentinc/cp-kafka:latest
+    container_name: boiler-kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "29092:29092"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  ### --- KAFKA EXPORTER ---
+  kafka-exporter:
+    image: danielqsj/kafka-exporter
+    container_name: boiler-kafka-exporter
+    restart: always
+    depends_on:
+      - kafka-service
+    ports:
+      - "9308:9308"
+    command:
+      - "--kafka.server=kafka-service:29092"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ###-------------------------------###
+  ### --- PROMETHEUS ---
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: boiler-prometheus
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./volumes/prometheus:/prometheus
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  ### --- GRAFANA ---
+  grafana:
+    image: grafana/grafana:latest
+    container_name: boiler_grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./volumes/grafana:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "mypass"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+### --- LOKI ---
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: boiler-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+### --- PROMTAIL ---
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: boiler-promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+###-------------------------------###
+  ### --- MAIN APP: BOILER ---
+#  boiler:
+#    container_name: boiler
+#    build:
+#      context: ../../
+#      dockerfile: deployment/docker/Dockerfile
+#    restart: always
+#    ports:
+#      - "5044:6060"
+#    depends_on:
+#      - postgres-service
+#      - redis-service
+#      - kafka-service
+#    # 📌 Mount config.prod.yml from host into container
+#    volumes:
+#      - ../../config.prod.yml:/app/config.prod.yml:ro
+#    environment:
+#      # Tell the app where the config file is
+#      CONFIG_PATH: /app/config.prod.yml
+#    healthcheck:
+#      test: ["CMD", "wget", "-qO-", "http://localhost:2020/hc"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+
+###-------------------------------###
+

@@ -1,0 +1,56 @@
+# ------------------------
+# VCS
+# ------------------------
+.git
+.gitignore
+
+# ------------------------
+# OS / Editor files
+# ------------------------
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# ------------------------
+# Binaries & build artifacts
+# ------------------------
+/app
+/bin/
+/build/
+/dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.test
+*.o
+*.a
+
+# ------------------------
+# Caches
+# ------------------------
+/.cache/
+go-build/
+go.sum.tmp
+
+# ------------------------
+# Local data & volumes
+# ------------------------
+deployment/docker/volumes/
+data/
+
+# ------------------------
+# Logs
+# ------------------------
+*.log
+
+# ------------------------
+# Env & real configs
+# ------------------------
+.env
+.env.*
+config.yaml
+config.*.yaml

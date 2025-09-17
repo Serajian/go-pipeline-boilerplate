@@ -1,0 +1,64 @@
+# ------------------------
+# System / IDE
+# ------------------------
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# ------------------------
+# Local data & volumes
+# ------------------------
+deployment/docker/volumes/
+data/
+
+# ------------------------
+# Go build outputs
+# ------------------------
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.test
+*.o
+*.a
+/bin/
+/build/
+/dist/
+
+# ------------------------
+# Vendor & cache
+# ------------------------
+/vendor/
+/.cache/
+
+# ------------------------
+# Logs & serialized files
+# ------------------------
+*.log
+*.gob
+
+# ------------------------
+# Coverage
+# ------------------------
+coverage.out
+
+# ------------------------
+# Env files
+# ------------------------
+.env
+.env.*
+
+# ------------------------
+# Real configs (keep example in repo)
+# ------------------------
+config/*.{yaml,yml}
+config/*.yaml
+config/*.example.yaml
+config.yml
+config.prod.yaml
+config.prod.yml
+config.dev.yaml
+config.dev.yml

@@ -1,0 +1,9 @@
+#!/bin/sh
+#first time enter this command
+#git config core.hooksPath .githooks
+#chmod +x .githooks/pre-commit
+
+echo "🔍 Running lightweight project checks before commit..."
+make check-lite || exit 1
+
+echo "✅ All checks passed. Proceeding with commit."
