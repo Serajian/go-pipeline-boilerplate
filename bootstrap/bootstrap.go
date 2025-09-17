@@ -3,12 +3,13 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	"go-pipeline/internal/di"
-	"go-pipeline/internal/presentation/http"
-	"go-pipeline/internal/presentation/mq"
 	"os"
 	"runtime/debug"
 	"sync"
+
+	"go-pipeline/internal/di"
+	"go-pipeline/internal/presentation/http"
+	"go-pipeline/internal/presentation/mq"
 
 	"go-pipeline/config"
 	"go-pipeline/infrastructure/registry"
@@ -101,7 +102,6 @@ func (app *App) Start(ctx context.Context) {
 			})
 		}
 	})
-
 }
 
 // Stop gracefully shuts down the application's core services.
