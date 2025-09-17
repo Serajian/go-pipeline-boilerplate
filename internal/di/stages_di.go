@@ -1,15 +1,20 @@
 package di
 
-import "go-pipeline/internal/ports"
+import (
+	"go-pipeline/internal/ports"
+)
 
 type Stages struct {
-	Registry *RegistryStages
+	Registry      *RegistryStages
+	ShortCircuits *ShortCircuits
 }
 
 func NewStagesContainer(p ports.MessageQueueProducer) *Stages {
 	registry := NewRegistryStages(p)
+	sc := NewShortCircuits(p)
 
 	return &Stages{
-		Registry: registry,
+		Registry:      registry,
+		ShortCircuits: sc,
 	}
 }

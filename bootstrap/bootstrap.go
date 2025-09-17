@@ -53,7 +53,7 @@ func Initialize(ctx context.Context) (*App, error) {
 	app.pipelines = di.NewPipelines(app.stages)
 
 	// 5) initialize httpserver server
-	handlerHTTP := http.NewGinAdapter(app.pipelines.Registry)
+	handlerHTTP := http.NewGinAdapter(app.pipelines.Parallel, app.pipelines.Barrier, app.pipelines.Short)
 	httpRegistry := registry.NewHTTPServerRegistry(handlerHTTP.Engin)
 	app.httpServer = httpRegistry
 	log.Info(&logger.Log{
