@@ -89,7 +89,7 @@ func (p *KafkaProducerAdapter) Produce(
 	topic string,
 	msg interface{},
 ) error {
-	//TODO: convent key ***important /maybe rci
+	// TODO: convent key ***important /maybe rci
 	key := "TODO"
 	message := &sarama.ProducerMessage{
 		Topic: topic,
