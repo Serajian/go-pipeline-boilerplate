@@ -88,6 +88,10 @@ func (r *MQRegistry) GetKafkaConsumer() *message_queue.KafkaConsumerAdapter {
 }
 
 func (r *MQRegistry) Close() error {
+	logger.GetLogger().Warn(&logger.Log{
+		Event:   "close mq registry",
+		TraceID: r.traceID,
+	})
 	for _, p := range r.producers {
 		if err := p.Close(); err != nil {
 			return err

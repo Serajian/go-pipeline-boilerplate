@@ -23,7 +23,7 @@ func (h *ConsumerHandler) Setup(sarama.ConsumerGroupSession) error {
 }
 
 func (h *ConsumerHandler) Cleanup(sarama.ConsumerGroupSession) error {
-	logger.GetLogger().Info(&logger.Log{
+	logger.GetLogger().Warn(&logger.Log{
 		Event: "cleanup consumer",
 		Additional: map[string]interface{}{
 			"msg": "🧹 Kafka consumer cleanup done",

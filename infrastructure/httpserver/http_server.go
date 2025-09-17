@@ -55,6 +55,11 @@ func (s *ServerHTTP) Stop(ctx context.Context) error {
 	if err := s.server.Shutdown(ctxTimeout); err != nil {
 		return err
 	}
+	logger.GetLogger().Warn(&logger.Log{
+		Event:   "stop httpserver server",
+		Error:   nil,
+		TraceID: config.GetTraceID(ctx),
+	})
 	return nil
 }
 

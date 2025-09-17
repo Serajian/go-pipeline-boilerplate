@@ -58,6 +58,18 @@ func (c *KafkaConsumerAdapter) Connect(ctx context.Context) error {
 
 	c.Consumer = consumer
 
+	go func() {
+		for err = range consumer.Errors() {
+			if err != nil {
+				logger.GetLogger().Error(&logger.Log{
+					Event:   "consumer error",
+					Error:   err,
+					TraceID: config.GetTraceID(ctx),
+				})
+			}
+		}
+	}()
+
 	// Log successful connection
 	logger.GetLogger().Info(&logger.Log{
 		Event:   "connect kafka consumer",
