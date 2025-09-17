@@ -118,6 +118,7 @@ func (app *App) Stop(ctx context.Context) {
 		Additional: nil,
 	})
 
+	// Stop HTTP server
 	if app.httpServer != nil {
 		if err := app.httpServer.Stop(ctx); err != nil {
 			logger.GetLogger().Error(&logger.Log{
@@ -129,6 +130,7 @@ func (app *App) Stop(ctx context.Context) {
 		}
 	}
 
+	// Close MQ
 	if app.mq != nil {
 		if err := app.mq.Close(); err != nil {
 			logger.GetLogger().Error(&logger.Log{
