@@ -1,0 +1,46 @@
+# copier.yml  (must on app root)
+_min_copier_version: "9.1.0"
+_answers_file: ".copier-answers.yml"   #answers store there
+
+# questions
+app_name:
+  type: str
+  help: "Application name"
+  default: "go-pipeline-app"
+
+module_path:
+  type: str
+  help: "Go module path (e.g., github.com/you/go-pipeline-app)"
+  default: "github.com/Serajian/go-pipeline-app"
+
+http_port:
+  type: int
+  help: "HTTP port for the app"
+  default: 1010
+
+use_postgres:
+  type: bool
+  help: "Include Postgres?"
+  default: true
+
+use_redis:
+  type: bool
+  help: "Include Redis?"
+  default: false
+
+use_kafka:
+  type: bool
+  help: "Include Kafka?"
+  default: true
+
+# copier.yml
+_exclude:
+  [% if not use_kafka %]
+- "infrastructure/message_queue/**"
+  [% endif %]
+  [% if not use_postgres %]
+- "infrastructure/db/**"
+  [% endif %]
+  [% if not use_redis %]
+- "infrastructure/cache/redis/**"
+  [% endif %]

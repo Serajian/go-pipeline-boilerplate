@@ -1,4 +1,4 @@
-module go-pipeline
+module [[module_path]]
 
 go 1.25.0
 
