@@ -1,6 +1,7 @@
 package di
 
 import (
+	"go-pipeline/config"
 	"go-pipeline/internal/model"
 	"go-pipeline/internal/pipelines"
 )
@@ -22,7 +23,7 @@ func NewPipelines(st *Stages) *Pipelines {
 	)
 
 	b := pipelines.NewRunnerBarrier[model.UserData](
-		16,
+		config.BuffBarrierCap,
 		st.Registry.Validation,
 		st.Registry.Store,
 		st.Registry.Produce,

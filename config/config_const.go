@@ -18,6 +18,7 @@ const (
 // *******Channels Stages*******
 
 const (
-	BuffData int = 64
-	BuffErr  int = 64
+	BuffData       int = 64
+	BuffErr        int = 64
+	BuffBarrierCap int = 16
 )
