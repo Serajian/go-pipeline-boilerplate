@@ -34,13 +34,32 @@ use_kafka:
   default: true
 
 # copier.yml
+# فایل‌هایی که همیشه کپی نشن (ثابت، بدون شرط)
 _exclude:
-  [% if not use_kafka %]
-- "infrastructure/message_queue/**"
-  [% endif %]
-  [% if not use_postgres %]
-- "infrastructure/db/**"
-  [% endif %]
-  [% if not use_redis %]
-- "infrastructure/cache/redis/**"
-  [% endif %]
+  - copier.yml
+  - .github/workflows/init.yml
+
+# بعد از تولید، بسته به پاسخ‌ها، مسیرها را حذف کن
+_tasks:
+  - sh: |
+      set -e
+      {% if not use_kafka %}
+      rm -rf infrastructure/message_queue
+      rm -rf deployment/docker/kafka-exporter
+      rm -rf deployment/docker/zookeeper
+      rm -rf deployment/docker/kafka-service
+      {% endif %}
+
+      {% if not use_postgres %}
+      rm -rf infrastructure/db
+      rm -rf deployment/docker/postgres-service
+      rm -rf deployment/docker/postgres-exporter
+      rm -rf deployment/docker/adminer
+      {% endif %}
+
+      {% if not use_redis %}
+      rm -rf infrastructure/cache/redis
+      rm -rf deployment/docker/redis-service
+      rm -rf deployment/docker/redis-exporter
+      rm -rf deployment/docker/redis-insight
+      {% endif %}
