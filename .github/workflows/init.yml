@@ -53,7 +53,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p gen
-          copier copy -f -w \
+          copier copy -f \
             -d app_name="${{ inputs.app_name }}" \
             -d module_path="${{ inputs.module_path }}" \
             -d http_port="${{ inputs.http_port }}" \
@@ -61,6 +61,7 @@ jobs:
             -d use_redis=${{ inputs.use_redis }} \
             -d use_kafka=${{ inputs.use_kafka }} \
             . gen
+      
 
       - name: Replace repo content with generated files
         run: |
