@@ -4,6 +4,6 @@
 #chmod +x .githooks/pre-commit
 
 echo "🔍 Running lightweight project checks before commit..."
-#make check-lite || exit 1
+make check-lite || exit 1
 
 echo "✅ All checks passed. Proceeding with commit."

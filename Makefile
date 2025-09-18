@@ -1,4 +1,4 @@
-APP_NAME := [[ app_name ]]
+APP_NAME := boiler
 BUILD_DIR := build
 MAIN := ./main.go
 DOCKER_COMPOSE := deployment/docker/docker-compose.yml
