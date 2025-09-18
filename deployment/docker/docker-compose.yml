@@ -1,4 +1,4 @@
-name: {{ app_name }}
+name: [[ app_name ]]
 version: '3.8'
 
 services:
@@ -59,7 +59,7 @@ services:
 [% endif %]
   ###-------------------------------###
   ### --- REDIS ---
-{% if use_redis %}
+[% if use_redis %]
   redis-service:
     image: redis:latest
     container_name: boiler-redis-service
@@ -107,10 +107,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-{% endif %}
+[% endif %]
   ###-------------------------------###
   ### --- ZOOKEEPER ---
-{% if use_kafka %}
+[% if use_kafka %]
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: boiler-zookeeper
@@ -163,7 +163,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-{% endif %}
+[% endif %]
   ###-------------------------------###
   ### --- PROMETHEUS ---
   prometheus:

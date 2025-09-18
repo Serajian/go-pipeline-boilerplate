@@ -53,7 +53,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p gen
-          copier -f -w \
+          copier copy -f -w \
             -d app_name="${{ inputs.app_name }}" \
             -d module_path="${{ inputs.module_path }}" \
             -d http_port="${{ inputs.http_port }}" \
@@ -62,13 +62,13 @@ jobs:
             -d use_kafka=${{ inputs.use_kafka }} \
             . gen
 
-      # جایگزینی محتوای فعلی با gen/
       - name: Replace repo content with generated files
         run: |
-          shopt -s dotglob
+          shopt -s dotglob extglob   # 👈 extglob لازم است تا الگوی !(...) کار کند
           rm -rf !(gen|.git|.github) || true
           mv gen/* ./ || true
           rm -rf gen
+      
 
       - name: Commit generated scaffold
         run: |
