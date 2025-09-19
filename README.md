@@ -1,3 +1,4 @@
+![Go Version](https://img.shields.io/badge/Go-1.25%2B-00ADD8?logo=go)
 # Go Pipeline Boilerplate
 
 A production-grade **Go boilerplate** for building scalable applications based on the **Pipeline pattern**.  
