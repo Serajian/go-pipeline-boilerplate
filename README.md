@@ -72,17 +72,17 @@ B --> E
 
 %% Messaging
 D --> D1
- --> D2
- --> D3
- --> D4
- --> D5
+D1 --> D2
+D2 --> D3
+D3 --> D4
+D4 --> D5
 
 %% HTTP
 E --> E1
---> E2
---> E3
---> E4
---> E5
+E1 --> E2
+E2 --> E3
+E3 --> E4
+E4 --> E5
 
 %% DI
 C --> C1[Pipeline Runners<br/> Chain<br/> ShortCircuit<br/>  Barrier]
