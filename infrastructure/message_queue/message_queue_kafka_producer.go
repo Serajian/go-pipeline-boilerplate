@@ -2,6 +2,7 @@ package message_queue
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -147,6 +148,11 @@ func buildValueEncoder(value interface{}) sarama.Encoder {
 	case string:
 		return sarama.StringEncoder(v)
 	default:
-		return sarama.StringEncoder(fmt.Sprintf("%v", v))
+		b, err := json.Marshal(v)
+		if err != nil {
+			// fallback: stringify to avoid panic
+			return sarama.StringEncoder(fmt.Sprintf("%v", v))
+		}
+		return sarama.ByteEncoder(b)
 	}
 }
